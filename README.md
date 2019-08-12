@@ -1,4 +1,4 @@
-# DCCS.Data.Source.Async &middot; [![Build status](https://ci.appveyor.com/api/projects/status/46hrb1mrhelwpup8?svg=true)] ![NuGet Version](https://img.shields.io/nuget/v/DCCS.Data.Source.Async.svg)
+# DCCS.Data.Source.Async &middot; ![Build status](https://ci.appveyor.com/api/projects/status/46hrb1mrhelwpup8?svg=true) ![NuGet Version](https://img.shields.io/nuget/v/DCCS.Data.Source.Async.svg)
 
 DCCS.Data.Source.Async is a fork of DCCS.Data.Source and leverages the async APIs of EntityFramework.Core
 
