@@ -12,7 +12,7 @@ namespace DCCS.Data.Source
 
     public static class AsyncResultExtensions
     {
-        public static async Task<AsyncResult<TProjection>> Select<T, TProjection>(this Task<AsyncResult<T>> source, Expression<Func<T, TProjection>> selector)
+        public static async Task<AsyncResult<TProjection>> Select<T, TProjection>(this Task<AsyncResult<T>> source, Func<T, TProjection> selector)
         {
             var intermediateResult = await source;
             return new AsyncResult<TProjection>(new Params
@@ -21,7 +21,15 @@ namespace DCCS.Data.Source
                 OrderBy = intermediateResult.OrderBy,
                 Desc = intermediateResult.Desc,
                 Page = intermediateResult.Page
-            }, intermediateResult.Data.AsQueryable().Select(selector));
+            }, intermediateResult.Data.AsEnumerable().Select(selector));
+        }
+    }
+
+    public static class AsyncResult
+    {
+        public static async Task<AsyncResult<T>> Create<T>(Params ps, IQueryable<T> data)
+        {
+            return await AsyncResult<T>.Create(ps, data);
         }
     }
 
@@ -29,9 +37,9 @@ namespace DCCS.Data.Source
     {
         private IQueryable<T> _data;
 
-        public static async Task<AsyncResult<TResult>> Create<TResult>(Params ps, IQueryable<TResult> data)
+        public static async Task<AsyncResult<T>> Create(Params ps, IQueryable<T> data)
         {
-            var result = new AsyncResult<TResult>(ps);
+            var result = new AsyncResult<T>(ps);
             await result.SetData(data);
             return result;
         }

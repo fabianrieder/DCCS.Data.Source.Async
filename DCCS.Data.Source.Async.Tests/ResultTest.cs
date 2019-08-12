@@ -46,8 +46,7 @@ namespace DCCS.Data.Source.Tests
         [Test]
         public async Task Should_create_empty_data()
         {
-            var sut = await AsyncResult<string>.Create(new Params(), new List<string>().AsQueryable());
-
+            var sut = await AsyncResult.Create(new Params(), new List<string>().AsQueryable());
             Assert.IsNotNull(sut.Data);
         }
 
@@ -57,7 +56,7 @@ namespace DCCS.Data.Source.Tests
             var total = 100;
             await CreateData<Dummy>(total);
 
-            var sut = await AsyncResult<Dummy>.Create(new Params(), DummyContext.Dummies);
+            var sut = await AsyncResult.Create(new Params(), DummyContext.Dummies);
 
             Assert.AreEqual(total, sut.Total);
         }
@@ -68,7 +67,7 @@ namespace DCCS.Data.Source.Tests
             var total = 100;
             await CreateData<Dummy>(total);
 
-            var sut = await AsyncResult<Dummy>.Create(new Params { Count = 10, Page = 2 }, DummyContext.Dummies);
+            var sut = await AsyncResult.Create(new Params { Count = 10, Page = 2 }, DummyContext.Dummies);
 
             Assert.AreEqual(total, sut.Total);
         }
@@ -79,7 +78,7 @@ namespace DCCS.Data.Source.Tests
             var total = 100;
             await CreateData<Dummy>(total);
 
-            var sut = await AsyncResult<Dummy>.Create(new Params { Count = 200, Page = 2 }, DummyContext.Dummies);
+            var sut = await AsyncResult.Create(new Params { Count = 200, Page = 2 }, DummyContext.Dummies);
 
             Assert.AreEqual(total, sut.Total);
         }
@@ -90,7 +89,7 @@ namespace DCCS.Data.Source.Tests
             var total = 100;
             await CreateData<Dummy>(total);
 
-            var sut = await AsyncResult<Dummy>.Create(new Params { Count = 200, Page = 2 }, DummyContext.Dummies);
+            var sut = await AsyncResult.Create(new Params { Count = 200, Page = 2 }, DummyContext.Dummies);
 
             Assert.AreEqual(1, sut.Page);
         }
@@ -104,7 +103,7 @@ namespace DCCS.Data.Source.Tests
             var ps = new Params { Count = 10, Page = 1 };
 
 
-            var sut = await AsyncResult<Dummy>.Create(ps, DummyContext.Dummies)
+            var sut = await AsyncResult.Create(ps, DummyContext.Dummies)
                 .Select(entry => new DummyDTO {Name = entry.Name, Length = (entry.Name ?? "").Length});
 
             Assert.IsInstanceOf(typeof(DummyDTO), sut.Data.First());
