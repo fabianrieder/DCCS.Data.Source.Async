@@ -1,20 +1,18 @@
-# DCCS.Data.Source &middot; ![Build Status](https://img.shields.io/appveyor/ci/stephanmeissner/dccs-data-source.svg) ![NuGet Version](https://img.shields.io/nuget/v/DCCS.Data.Source.svg)
+# DCCS.Data.Source.Async &middot; ![Build Status](https://img.shields.io/appveyor/ci/stephanmeissner/dccs-data-source.svg) ![NuGet Version](https://img.shields.io/nuget/v/DCCS.Data.Source.svg)
 
-DCCS.Data.Source helps with automatic sorting and paging of data. It was created, to support Html-DataGrids with sorting and paging.
-
-DCCS.Data.Source is supposed to get out of the programmers way and do as much as possible automaticly.
+DCCS.Data.Source.Async is a fork of DCCS.Data.Source and leverages the async APIs of EntityFramework.Core
 
 ## Installation
 
-You should install [DCCS.Data.Source with NuGet](https://www.nuget.org/packages/DCCS.Data.Source/):
+You should install [DCCS.Data.Source.Async with NuGet](https://www.nuget.org/packages/DCCS.Data.Source/):
 
-    Install-Package DCCS.Data.Source
+    Install-Package DCCS.Data.Source.Async
 
 Or via the .NET Core command line interface:
 
-    dotnet add package DCCS.Data.Source
+    dotnet add package DCCS.Data.Source.Async
 
-Either commands, from Package Manager Console or .NET Core CLI, will download and install DCCS.Data.Source and all required dependencies.
+Either commands, from Package Manager Console or .NET Core CLI, will download and install DCCS.Data.Source.Async and all required dependencies.
 
 ## Examples
 
@@ -23,11 +21,11 @@ In this example we create an WebAPI action, that takes parameter (`Params`) for 
 ```csharp
 public class UsersController : Controller
 {
-    public Result<User> Get(Params ps)
+    public AsyncResult<User> Get(Params ps)
     {
         // ...get data i.e. from EF
         // data: IQueryable<User>
-        return new Result<User>(ps, data);
+        return await AsyncResult.Create(ps, data);
     }
 }
 ```
@@ -35,10 +33,10 @@ public class UsersController : Controller
 You can also use the IQueryable extension method.
 
 ```csharp
-    using DCCS.Data.Source;
+    using DCCS.Data.Source.Async;
     ...
-    // data must be an IQueryable.
-    return data.ToResult<User>();
+    // data must be an IAsyncEnumerable (as most EF Queryables are).
+    return data.ToAsyncResult<User>();
 ```
 
 The resulting JSON looks like this:
@@ -64,8 +62,7 @@ If you need to transform (`Select`) the sorted and paged data, you can use the `
 
 using(var db = new DbContext()) {
     var users = db.Users;
-    return new Result(ps, users)
-        .Select(user => new UserDTO(user));
+    return AsyncResult.Create(ps, users).Select(user => new UserDTO(user));
 }
 ```
 
@@ -75,4 +72,4 @@ using(var db = new DbContext()) {
 
 ### License
 
-DCCS.Data.Source is [MIT licensed](https://github.com/facebook/react/blob/master/LICENSE)
+DCCS.Data.Source.Async is [MIT licensed](https://opensource.org/licenses/MIT)
