@@ -4,7 +4,7 @@ DCCS.Data.Source.Async is a fork of DCCS.Data.Source and leverages the async API
 
 ## Installation
 
-You should install [DCCS.Data.Source.Async with NuGet](https://www.nuget.org/packages/DCCS.Data.Source/):
+You should install [DCCS.Data.Source.Async with NuGet](https://www.nuget.org/packages/DCCS.Data.Source.Async/):
 
     Install-Package DCCS.Data.Source.Async
 
