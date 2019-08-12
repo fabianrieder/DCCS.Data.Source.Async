@@ -16,7 +16,7 @@ Either commands, from Package Manager Console or .NET Core CLI, will download an
 
 ## Examples
 
-In this example we create an WebAPI action, that takes parameter (`Params`) for paging and sorting information, and returns the sorted and paged data (`Result<T>`).
+In this example we create an WebAPI action, that takes parameter (`Params`) for paging and sorting information, and returns the sorted and paged data (`AsyncResult<T>`).
 
 ```csharp
 public class UsersController : Controller
@@ -55,7 +55,7 @@ The resulting JSON looks like this:
 }
 ```
 
-If you need to transform (`Select`) the sorted and paged data, you can use the `Result<T>.Select` method. Like this:
+If you need to transform (`Select`) the sorted and paged data, you can use the `AsyncResult<T>.Select` method. Like this:
 
 ```csharp
 ...
