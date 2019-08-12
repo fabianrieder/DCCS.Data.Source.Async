@@ -4,7 +4,7 @@ pull_requests:
 branches:
   only:
     - master
-image: Visual Studio 2017
+image: Visual Studio 2019
 nuget:
   disable_publish_on_pr: true
 build_script:
@@ -17,7 +17,7 @@ deploy:
   - provider: NuGet
     name: production
     api_key:
-      secure: jI+YdI+ldoUfMjQ6ychDsgemAZJcQn/A8KxB6bpAmNgF9TlxhanQBXzu+joNL5Ap
+      secure: jDDufMtZgGOjSjy5dlivsD6zl/BKJzT7CSUpDpX9QFUePc063Z4PDECE4BuQfQ/q
     skip_symbols: true
     symbol_server:
     on:
