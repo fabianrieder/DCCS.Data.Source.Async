@@ -95,7 +95,7 @@ namespace DCCS.Data.Source.Tests
         }
 
         [Test]
-        public async Task Should_map_data()
+        public async Task Should_project_data()
         {
             var total = 2;
             await CreateData<Dummy>(total);
@@ -104,9 +104,51 @@ namespace DCCS.Data.Source.Tests
 
 
             var sut = await AsyncResult.Create(ps, DummyContext.Dummies)
-                .Select(entry => new DummyDTO {Name = entry.Name, Length = (entry.Name ?? "").Length});
+                .SelectAsync(entry => new DummyDTO {Name = entry.Name, Length = (entry.Name ?? "").Length});
 
             Assert.IsInstanceOf(typeof(DummyDTO), sut.Data.First());
+        }
+
+        [Test]
+        public async Task should_return_correct_projectedData_count()
+        {
+            var total = 2;
+            await CreateData<Dummy>(total);
+
+            var ps = new Params { Count = 10, Page = 1 };
+
+
+            var sut = await AsyncResult.Create(ps, DummyContext.Dummies)
+                .SelectAsync(entry => new DummyDTO { Name = entry.Name, Length = (entry.Name ?? "").Length });
+
+            Assert.AreEqual(total, sut.Total);
+        }
+
+        [Test]
+        public async Task should_return_correct_projectedData_countasync()
+        {
+            var total = 2;
+            await CreateData<Dummy>(total);
+
+            var ps = new Params { Count = 10, Page = 1 };
+
+
+            var sut = await AsyncResult.Create(ps, DummyContext.Dummies).SelectAsync(entry => new DummyDTO { Name = entry.Name, Length = (entry.Name ?? "").Length });
+
+            Assert.AreEqual(total, sut.Total);
+        }
+
+        [Test]
+        public async Task should_orderBy_projectedData()
+        {
+            var total = 2;
+            await CreateData<Dummy>(total);
+
+            var ps = new Params { Count = 10, Page = 1, OrderBy = "Length"};
+
+            var sut = await AsyncResult.Create(ps, DummyContext.Dummies).SelectAsync(entry => new DummyDTO { Name = entry.Name, Length = (entry.Name ?? "").Length });
+
+            Assert.AreEqual(total, sut.Total);
         }
     }
 }

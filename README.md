@@ -55,14 +55,14 @@ The resulting JSON looks like this:
 }
 ```
 
-If you need to transform (`Select`) the sorted and paged data, you can use the `AsyncResult<T>.Select` method. Like this:
+If you need to transform (`Select`) the sorted and paged data, you can use the `AsyncResult<T>.Select` or `Task<AsyncResult<T>>.SelectAsync` method. Like this:
 
 ```csharp
 ...
 
 using(var db = new DbContext()) {
     var users = db.Users;
-    return AsyncResult.Create(ps, users).Select(user => new UserDTO(user));
+    return AsyncResult.Create(ps, users).SelectAsync(user => new UserDTO(user));
 }
 ```
 

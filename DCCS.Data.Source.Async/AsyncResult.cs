@@ -12,16 +12,10 @@ namespace DCCS.Data.Source
 
     public static class AsyncResultExtensions
     {
-        public static async Task<AsyncResult<TProjection>> Select<T, TProjection>(this Task<AsyncResult<T>> source, Func<T, TProjection> selector)
+        public static async Task<AsyncResult<TProjection>> SelectAsync<T, TProjection>(this Task<AsyncResult<T>> source, Func<T, TProjection> selector)
         {
             var intermediateResult = await source;
-            return new AsyncResult<TProjection>(new Params
-            {
-                Count = intermediateResult.Count,
-                OrderBy = intermediateResult.OrderBy,
-                Desc = intermediateResult.Desc,
-                Page = intermediateResult.Page
-            }, intermediateResult.Data.AsEnumerable().Select(selector));
+            return await intermediateResult.SelectAsync(selector);
         }
     }
 
@@ -36,6 +30,7 @@ namespace DCCS.Data.Source
     public class AsyncResult<T> : Params
     {
         private IQueryable<T> _data;
+        private Lazy<Task<T[]>> _pagedData;
 
         public static async Task<AsyncResult<T>> Create(Params ps, IQueryable<T> data)
         {
@@ -56,11 +51,13 @@ namespace DCCS.Data.Source
 
         internal AsyncResult(Params ps, IEnumerable<T> data) : base(ps)
         {
-            Data = data;
+            _data = data.AsQueryable();
         }
 
 
-        public IEnumerable<T> Data { get; protected set; }
+        public IEnumerable<T> Data => _pagedData.Value.GetAwaiter().GetResult();
+        public async Task<IEnumerable<T>> DataAsync() => await _pagedData.Value;
+
         public int Total { get; set; }
 
         public virtual async Task SetData(IQueryable<T> data)
@@ -74,23 +71,49 @@ namespace DCCS.Data.Source
             }
 
             await DoSort(_data);
+
             await DoPage(_data);
-            Data = _data is IAsyncEnumerable<T> ? await _data.ToArrayAsync() : _data.ToArray();
+
+            _pagedData = new Lazy<Task<T[]>>(async () =>
+            {
+                
+
+                return _data is IAsyncEnumerable<T> ? await _data.ToArrayAsync() : _data.ToArray();
+            });
         }
 
-        public AsyncResult<TProjection> Select<TProjection>(Expression<Func<T, TProjection>> selector)
+        public AsyncResult<TProjection> Select<TProjection>(Func<T, TProjection> selector)
         {
-            return new AsyncResult<TProjection>(new Params
+            var newData = _data.Select(selector).AsQueryable();
+            var result = new AsyncResult<TProjection>(new Params
             {
                 Count = Count,
-                OrderBy = OrderBy,
                 Desc = Desc,
+                OrderBy = OrderBy,
                 Page = Page
-            })
-            {
-                Data = Data.AsQueryable().Select(selector)
-            };
+            });
+
+            result.SetData(newData);
+
+            return result;
         }
+
+        public async Task<AsyncResult<TProjection>> SelectAsync<TProjection>(Func<T, TProjection> selector)
+        {
+            var newData = _data.Select(selector).AsQueryable();
+            var result = new AsyncResult<TProjection>(new Params
+            {
+                Count = Count,
+                Desc = Desc,
+                OrderBy = OrderBy,
+                Page = Page
+            });
+
+            await result.SetData(newData);
+
+            return result;
+        }
+
 
         protected async Task DoSort(IQueryable<T> data)
         {

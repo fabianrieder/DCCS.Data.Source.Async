@@ -56,6 +56,8 @@ namespace DCCS.Data.Source.Tests
             Assert.AreEqual(total, sut.Total);
         }
 
-      
+
     }
+
+    
 }
