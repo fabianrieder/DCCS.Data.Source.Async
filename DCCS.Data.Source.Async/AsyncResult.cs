@@ -15,13 +15,7 @@ namespace DCCS.Data.Source
         public static async Task<AsyncResult<TProjection>> Select<T, TProjection>(this Task<AsyncResult<T>> source, Func<T, TProjection> selector)
         {
             var intermediateResult = await source;
-            return new AsyncResult<TProjection>(new Params
-            {
-                Count = intermediateResult.Count,
-                OrderBy = intermediateResult.OrderBy,
-                Desc = intermediateResult.Desc,
-                Page = intermediateResult.Page
-            }, intermediateResult.Data.AsEnumerable().Select(selector));
+            return await intermediateResult.SelectAsync(selector);
         }
     }
 
@@ -30,6 +24,11 @@ namespace DCCS.Data.Source
         public static async Task<AsyncResult<T>> Create<T>(Params ps, IQueryable<T> data)
         {
             return await AsyncResult<T>.Create(ps, data);
+        }
+
+        public static async Task<AsyncResult<T>> CreateUnmodified<T>(Params ps, IQueryable<T> data)
+        {
+            return new AsyncResult<T>(ps, data);
         }
     }
 
@@ -67,20 +66,25 @@ namespace DCCS.Data.Source
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
 
-            Total = _data is IAsyncEnumerable<T> ? await _data.CountAsync() : _data.Count();
+            await SetCount(_data);
+            await DoSort(_data);
+            await DoPage(_data);
+
+            Data = _data is IAsyncEnumerable<T> ? await _data.ToArrayAsync() : _data.ToArray();
+        }
+
+        protected async Task SetCount(IQueryable<T> data)
+        {
+            Total = data is IAsyncEnumerable<T> ? await data.CountAsync() : data.Count();
             if (Count.HasValue)
             {
                 Count = Math.Min(Count.Value, Total);
             }
-
-            await DoSort(_data);
-            await DoPage(_data);
-            Data = _data is IAsyncEnumerable<T> ? await _data.ToArrayAsync() : _data.ToArray();
         }
 
-        public AsyncResult<TProjection> Select<TProjection>(Expression<Func<T, TProjection>> selector)
+        public AsyncResult<TProjection> Select<TProjection>(Func<T, TProjection> selector)
         {
-            return new AsyncResult<TProjection>(new Params
+            var result = new AsyncResult<TProjection>(new Params
             {
                 Count = Count,
                 OrderBy = OrderBy,
@@ -88,9 +92,32 @@ namespace DCCS.Data.Source
                 Page = Page
             })
             {
-                Data = Data.AsQueryable().Select(selector)
+                Data = Data.Select(selector),
             };
+
+            result.SetCount(result.Data.AsQueryable()).GetAwaiter().GetResult();
+
+            return result;
         }
+
+        public async Task<AsyncResult<TProjection>> SelectAsync<TProjection>(Func<T, TProjection> selector)
+        {
+            var result = new AsyncResult<TProjection>(new Params
+            {
+                Count = Count,
+                OrderBy = OrderBy,
+                Desc = Desc,
+                Page = Page
+            })
+            {
+                Data = Data.Select(selector),
+            };
+
+            await result.SetCount(result.Data.AsQueryable());
+
+            return result;
+        }
+
 
         protected async Task DoSort(IQueryable<T> data)
         {

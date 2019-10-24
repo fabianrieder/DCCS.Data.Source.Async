@@ -108,5 +108,21 @@ namespace DCCS.Data.Source.Tests
 
             Assert.IsInstanceOf(typeof(DummyDTO), sut.Data.First());
         }
+
+        [Test]
+        public async Task ProjectedData_Should_Have_Correct_Count()
+        {
+            var total = 2;
+            await CreateData<Dummy>(total);
+
+            var ps = new Params { Count = 10, Page = 1 };
+
+
+            var sut = await AsyncResult.Create(ps, DummyContext.Dummies)
+                .Select(entry => new DummyDTO { Name = entry.Name, Length = (entry.Name ?? "").Length });
+
+            Assert.IsInstanceOf(typeof(DummyDTO), sut.Data.First());
+            Assert.AreEqual(total, sut.Total);
+        }
     }
 }
