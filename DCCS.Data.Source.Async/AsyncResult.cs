@@ -73,9 +73,11 @@ namespace DCCS.Data.Source
             Data = _data is IAsyncEnumerable<T> ? await _data.ToArrayAsync() : _data.ToArray();
         }
 
-        protected async Task SetCount(IQueryable<T> data)
+        protected async Task SetCount(IQueryable<T> data, bool setTotal = true)
         {
-            Total = data is IAsyncEnumerable<T> ? await data.CountAsync() : data.Count();
+            //if false: keep previous total, set count overwrites the the already paged (and counted) data
+            //this is necessary for select and selectasync
+            if (setTotal) Total = data is IAsyncEnumerable<T> ? await data.CountAsync() : data.Count();
             if (Count.HasValue)
             {
                 Count = Math.Min(Count.Value, Total);
@@ -93,10 +95,10 @@ namespace DCCS.Data.Source
             })
             {
                 Data = Data.Select(selector),
+                Total = Total
             };
 
-            result.SetCount(result.Data.AsQueryable()).GetAwaiter().GetResult();
-
+            result.SetCount(result.Data.AsQueryable(), false).GetAwaiter().GetResult();
             return result;
         }
 
@@ -111,10 +113,11 @@ namespace DCCS.Data.Source
             })
             {
                 Data = Data.Select(selector),
+                Total = Total
             };
 
-            await result.SetCount(result.Data.AsQueryable());
-
+            await result.SetCount(result.Data.AsQueryable(), false);
+            
             return result;
         }
 

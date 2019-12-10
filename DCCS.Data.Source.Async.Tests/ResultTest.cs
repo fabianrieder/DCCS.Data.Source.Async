@@ -112,7 +112,7 @@ namespace DCCS.Data.Source.Tests
         [Test]
         public async Task ProjectedData_Should_Have_Correct_Count()
         {
-            var total = 2;
+            var total = 200;
             await CreateData<Dummy>(total);
 
             var ps = new Params { Count = 10, Page = 1 };

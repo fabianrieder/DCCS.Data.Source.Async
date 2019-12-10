@@ -5,7 +5,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Mario te Best</Authors>
     <Company>DCCS GmbH</Company>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <RepositoryUrl>https://github.com/mariotebest/DCCS.Data.Source.Async</RepositoryUrl>
     <PackageTags>paging, sorting, efcore</PackageTags>
     <Description>This library takes care of async paging and sorting</Description>
