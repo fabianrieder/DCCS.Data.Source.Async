@@ -152,19 +152,23 @@ namespace DCCS.Data.Source
             }
             if (!Count.HasValue) throw new ArgumentNullException(nameof(Count), "Page size is required.");
 
-
             var skip = (Page.Value - 1) * Count.Value;
             var take = Count.Value;
 
-            var intermediateResult = !string.IsNullOrWhiteSpace(OrderBy)
-                ? data.Skip(skip).Take(take)
-                : data.Skip(skip).OrderBy(x => true).Take(take).OrderBy(x => true);
+            var intermediateResult = data;
+
+            if (Total > 0)
+            {
+                intermediateResult = !string.IsNullOrWhiteSpace(OrderBy)
+                    ? data.Skip(skip).Take(take)
+                    : data.Skip(skip).OrderBy(x => true).Take(take).OrderBy(x => true);
+            }
 
             var hasEntries = intermediateResult is IAsyncEnumerable<T>
                 ? await intermediateResult.AnyAsync()
                 : intermediateResult.Any();
 
-            if (!hasEntries)
+            if (Total == 0 || !hasEntries)
             {
                 Page = 1;
                 intermediateResult = data.Take(Count.Value);

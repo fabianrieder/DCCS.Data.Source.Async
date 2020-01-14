@@ -1,13 +1,11 @@
-using Bogus;
-using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DCCS.Data.Source.Async.Tests;
+using Bogus;
 using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
 
-namespace DCCS.Data.Source.Tests
+namespace DCCS.Data.Source.Async.Tests
 {
 
     [TestFixture]
