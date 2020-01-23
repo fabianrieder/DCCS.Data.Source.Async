@@ -5,10 +5,10 @@ using System.Text;
 
 namespace DCCS.Data.Source.Async.Tests
 {
-    public class Dummy
+    public class Secret
     {
         [Key]
-        public string Name { get; set; }
-
+        public int Id { get; set; }
+        public string Password { get; set; }
     }
 }

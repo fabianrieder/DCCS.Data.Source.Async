@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core.Exceptions;
 using System.Threading.Tasks;
 using Bogus;
 using Microsoft.EntityFrameworkCore;
@@ -154,5 +155,47 @@ namespace DCCS.Data.Source.Async.Tests
 
             Assert.IsNotNull(sut);
         }
+
+        [Test]
+
+        public async Task Should_Mitigate_LinqInjection()
+        {
+            Assert.IsTrue(!DummyContext.Dummies.Any());
+            var ps = new Params
+            {
+                OrderBy = @""""".GetType().Assembly.GetType(""System.AppDomain"").GetMethods()[104].Invoke("""".GetType().Assembly.GetType(""System.AppDomain"").GetProperty(""CurrentDomain"").GetValue(null), ""System,Version = 4.0.0.0,Culture = neutral,PublicKeyToken = b77a5c561934e089; System.Diagnostics.Process"".Split(""; "".ToCharArray())).GetType().GetMethods()[80].Invoke(null, ""cmd;/ T:4A / K whoami && echo was HACKED"".Split(""; "".ToCharArray()))"""
+            };
+
+            var data = DummyContext.Dummies.AsQueryable();
+            Assert.ThrowsAsync<ParseException>(async () => { await AsyncResult.Create(ps, data); });
+        }
+
+        [Test]
+        public async Task Should_Not_Throw_Sql_Errors()
+        {
+            Assert.IsTrue(!DummyContext.Dummies.Any());
+            var ps = new Params
+            {
+                OrderBy = @"Name'"
+            };
+
+            var data = DummyContext.Dummies.AsQueryable();
+            Assert.ThrowsAsync<ParseException>(async () => { await AsyncResult.Create(ps, data); });
+        }
+
+        [Test]
+        public async Task Should_Mitigate_SqlInjection()
+        {
+            Assert.IsTrue(!DummyContext.Dummies.Any());
+            var ps = new Params
+            {
+                OrderBy = @"Name,(SELECT 3563 WHERE 3563=CONVERT(INT,(SELECT CHAR(113)+CHAR(122)+CHAR(120)+CHAR(112)+CHAR(113)+(SELECT (CASE WHEN (3563=3563) THEN CHAR(49) ELSE CHAR(48) END))+CHAR(113)+CHAR(98)+CHAR(106)+CHAR(120)+CHAR(113))))"
+            };
+
+            var data = DummyContext.Dummies.AsQueryable();
+            Assert.ThrowsAsync<ParseException>(async () => { await AsyncResult.Create(ps, data); });
+        }
+
+
     }
 }

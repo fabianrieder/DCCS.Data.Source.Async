@@ -12,6 +12,7 @@ namespace DCCS.Data.Source.Async.Tests
         { }
 
         public DbSet<Dummy> Dummies { get; set; }
+        public DbSet<Secret> Secret { get; set; }
 
     }
 }
